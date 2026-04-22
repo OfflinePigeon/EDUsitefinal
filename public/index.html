@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+		<title>EDUsite | Learning Portal</title>
+		<meta name="description" content="Official portal for EDUsite student activities." />
+		<link rel="icon" type="image/png" href="plus.png" />
+		<link rel="stylesheet" href="index.css" />
+		<script src="baremux/index.js"></script>
+		<script src="uv/uv.bundle.js"></script>
+		<script src="uv/uv.config.js"></script>
+		<style>
+			@keyframes fadeInUp {
+				from { opacity: 0; transform: translateY(15px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+			.animate-fade { opacity: 0; animation: fadeInUp 0.8s ease-out forwards; }
+			body {
+				margin: 0; padding: 0;
+				display: flex; flex-direction: column;
+				min-height: 100vh;
+				background-color: #1a202c;
+				font-family: "Inter", sans-serif;
+				overflow: hidden;
+			}
+			.logo { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; display: block; }
+			.logo:hover { transform: scale(1.1); }
+			.nav-link { cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: all 0.3s ease; color: #cbd5e0; }
+			.nav-link:hover { background: #4a5568; color: #ffffff; transform: translateY(-2px); }
+			.nav-link.active { background: #4a5568; color: #ffffff; }
+			#uv-address:focus {
+				border-color: #63b3ed !important;
+				box-shadow: 0 0 0 3px rgba(99,179,237,0.2), 0 10px 15px -3px rgba(0,0,0,0.3) !important;
+			}
+			#custom-panel { max-height: 65vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #4a5568 transparent; }
+			.status-dot { width: 8px; height: 8px; background: #48bb78; border-radius: 50%; position: relative; }
+			.status-dot::after {
+				content: ''; position: absolute; top: 0; left: 0;
+				width: 100%; height: 100%; background: #48bb78;
+				border-radius: 50%; z-index: -1; animation: statusPulse 2s infinite;
+			}
+			@keyframes statusPulse {
+				0% { transform: scale(1); opacity: 0.8; }
+				100% { transform: scale(2.5); opacity: 0; }
+			}
+			.user-avatar-container {
+				width: 30px; height: 30px; background: #4a5568; border-radius: 50%;
+				display: flex; align-items: center; justify-content: center;
+				border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;
+			}
+			.user-avatar-container:hover { background: #63b3ed; }
+		</style>
+	</head>
+	<body>
+		<button id="home-btn" title="Return to Dashboard">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+				<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+			</svg>
+		</button>
+
+		<nav class="animate-fade" style="display:flex;align-items:center;gap:10px;padding:10px 25px;background:#2d3748;font-size:14px;border-radius:20px;margin:15px 20px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4);border:1px solid #4a5568;z-index:100;animation-delay:0.1s;">
+			<span class="nav-link" onclick="setActiveNav(this)">Dashboard</span>
+			<span class="nav-link" onclick="setActiveNav(this)">Curriculum</span>
+			<span class="nav-link" onclick="setActiveNav(this)">Resources</span>
+
+			<div id="user-pill" style="margin-left:auto;display:flex;align-items:center;gap:12px;background:#1a202c;padding:6px 18px;border-radius:18px;border:1px solid #4a5568;cursor:pointer;position:relative;user-select:none;" onclick="toggleCustomPanel()">
+				<div class="status-dot"></div>
+				<span id="welcome-text" style="font-weight:600;color:#e2e8f0;font-size:13px;">Welcome, Student</span>
+				<div class="user-avatar-container">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:#cbd5e0;">
+						<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+						<circle cx="12" cy="7" r="4"></circle>
+					</svg>
+				</div>
+				<span style="color:#718096;font-size:11px;margin-left:-6px;">▾</span>
+
+				<div id="custom-panel" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:#2d3748;border:1px solid #4a5568;border-radius:16px;padding:0;width:250px;box-shadow:0 20px 40px rgba(0,0,0,0.5);z-index:999;overflow:hidden;" onclick="event.stopPropagation()">
+					<div style="background:#1a202c;padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #4a5568;">
+						<div id="panel-avatar" style="width:42px;height:42px;border-radius:50%;background:#63b3ed;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#1a202c;flex-shrink:0;">S</div>
+						<div style="overflow:hidden;">
+							<div id="display-name" style="font-weight:600;color:#e2e8f0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Student</div>
+							<div style="font-size:11px;color:#718096;">student@edusite.edu</div>
+						</div>
+					</div>
+
+					<div style="padding:12px;display:flex;flex-direction:column;gap:2px;">
+						<p style="margin:4px 0 6px 4px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#718096;font-weight:600;">Account</p>
+						<button onclick="toggleNameEdit()" style="background:none;border:none;color:#cbd5e0;font-size:13px;cursor:pointer;text-align:left;padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:8px;width:100%;" onmouseover="this.style.background='#3a4659'" onmouseout="this.style.background='none'">
+							<span style="font-size:15px;">✏️</span> Edit Display Name
+						</button>
+						<div id="name-edit-box" style="display:none;padding:0 4px 6px;">
+							<input id="name-input" type="text" placeholder="Enter name..." maxlength="20" style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid #4a5568;background:#1a202c;color:#e2e8f0;font-size:13px;box-sizing:border-box;outline:none;" />
+							<button onclick="saveName()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;background:#63b3ed;border:none;color:#1a202c;font-size:12px;font-weight:700;cursor:pointer;">Save</button>
+						</div>
+
+						<p style="margin:2px 0 4px 4px;font-size:11px;color:#718096;">Avatar Color</p>
+						<div style="display:flex;gap:7px;padding:0 4px;margin-bottom:8px;flex-wrap:wrap;">
+							<button onclick="setAvatar('#63b3ed')" style="width:24px;height:24px;border-radius:50%;background:#63b3ed;border:2px solid transparent;cursor:pointer;" title="Blue"></button>
+							<button onclick="setAvatar('#68d391')" style="width:24px;height:24px;border-radius:50%;background:#68d391;border:2px solid transparent;cursor:pointer;" title="Green"></button>
+							<button onclick="setAvatar('#f6ad55')" style="width:24px;height:24px;border-radius:50%;background:#f6ad55;border:2px solid transparent;cursor:pointer;" title="Orange"></button>
+							<button onclick="setAvatar('#fc8181')" style="width:24px;height:24px;border-radius:50%;background:#fc8181;border:2px solid transparent;cursor:pointer;" title="Red"></button>
+							<button onclick="setAvatar('#b794f4')" style="width:24px;height:24px;border-radius:50%;background:#b794f4;border:2px solid transparent;cursor:pointer;" title="Purple"></button>
+							<button onclick="setAvatar('#76e4f7')" style="width:24px;height:24px;border-radius:50%;background:#76e4f7;border:2px solid transparent;cursor:pointer;" title="Cyan"></button>
+						</div>
+
+						<button onclick="toggleNotifs()" style="background:none;border:none;color:#cbd5e0;font-size:13px;cursor:pointer;text-align:left;padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;width:100%;" onmouseover="this.style.background='#3a4659'" onmouseout="this.style.background='none'">
+							<span style="display:flex;align-items:center;gap:8px;"><span style="font-size:15px;">🔔</span> Notifications</span>
+							<div id="notif-toggle" style="width:32px;height:18px;border-radius:9px;background:#48bb78;position:relative;transition:0.3s;flex-shrink:0;">
+								<div id="notif-knob" style="width:14px;height:14px;border-radius:50%;background:white;position:absolute;top:2px;left:16px;transition:0.3s;"></div>
+							</div>
+						</button>
+
+						<button onclick="togglePrivacy()" style="background:none;border:none;color:#cbd5e0;font-size:13px;cursor:pointer;text-align:left;padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;width:100%;" onmouseover="this.style.background='#3a4659'" onmouseout="this.style.background='none'">
+							<span style="display:flex;align-items:center;gap:8px;"><span style="font-size:15px;">🔒</span> Privacy Mode</span>
+							<div id="priv-toggle" style="width:32px;height:18px;border-radius:9px;background:#4a5568;position:relative;transition:0.3s;flex-shrink:0;">
+								<div id="priv-knob" style="width:14px;height:14px;border-radius:50%;background:white;position:absolute;top:2px;left:2px;transition:0.3s;"></div>
+							</div>
+						</button>
+
+						<hr style="border:none;border-top:1px solid #4a5568;margin:8px 0;">
+						<p style="margin:0 0 6px 4px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#718096;font-weight:600;">Appearance</p>
+
+						<div style="display:flex;gap:7px;padding:0 4px;margin-bottom:8px;">
+							<button onclick="applyTheme('#63b3ed')" style="width:24px;height:24px;border-radius:50%;background:#63b3ed;border:2px solid transparent;cursor:pointer;"></button>
+							<button onclick="applyTheme('#68d391')" style="width:24px;height:24px;border-radius:50%;background:#68d391;border:2px solid transparent;cursor:pointer;"></button>
+							<button onclick="applyTheme('#f6ad55')" style="width:24px;height:24px;border-radius:50%;background:#f6ad55;border:2px solid transparent;cursor:pointer;"></button>
+							<button onclick="applyTheme('#fc8181')" style="width:24px;height:24px;border-radius:50%;background:#fc8181;border:2px solid transparent;cursor:pointer;"></button>
+							<button onclick="applyTheme('#b794f4')" style="width:24px;height:24px;border-radius:50%;background:#b794f4;border:2px solid transparent;cursor:pointer;"></button>
+						</div>
+
+						<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
+							<button onclick="applyBg('#1a202c')" style="background:#1a202c;color:#e2e8f0;border:1px solid #4a5568;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;text-align:left;">🌑 Dark (Default)</button>
+							<button onclick="applyBg('#1a1a2e')" style="background:#1a1a2e;color:#e2e8f0;border:1px solid #4a5568;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;text-align:left;">🌌 Midnight Blue</button>
+							<button onclick="applyBg('#f7fafc')" style="background:#f7fafc;color:#1a202c;border:1px solid #4a5568;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;text-align:left;">☀️ Light Mode</button>
+						</div>
+
+						<p style="margin:0 0 6px 4px;font-size:11px;color:#718096;">Font Size</p>
+						<div style="display:flex;gap:6px;margin-bottom:8px;padding:0 4px;">
+							<button onclick="applyFont('14px')" style="flex:1;background:#1a202c;color:#e2e8f0;border:1px solid #4a5568;border-radius:8px;padding:5px;font-size:11px;cursor:pointer;">S</button>
+							<button onclick="applyFont('16px')" style="flex:1;background:#1a202c;color:#e2e8f0;border:1px solid #4a5568;border-radius:8px;padding:5px;font-size:13px;cursor:pointer;">M</button>
+							<button onclick="applyFont('19px')" style="flex:1;background:#1a202c;color:#e2e8f0;border:1px solid #4a5568;border-radius:8px;padding:5px;font-size:15px;cursor:pointer;">L</button>
+						</div>
+
+						<hr style="border:none;border-top:1px solid #4a5568;margin:8px 0;">
+						<p style="margin:0 0 6px 4px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#718096;font-weight:600;">Session</p>
+
+						<button onclick="fakeAction('Settings saved!')" style="background:none;border:none;color:#cbd5e0;font-size:13px;cursor:pointer;text-align:left;padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:8px;width:100%;" onmouseover="this.style.background='#3a4659'" onmouseout="this.style.background='none'">
+							<span style="font-size:15px;">⚙️</span> Account Settings
+						</button>
+						<button onclick="fakeAction('Activity report generated!')" style="background:none;border:none;color:#cbd5e0;font-size:13px;cursor:pointer;text-align:left;padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:8px;width:100%;" onmouseover="this.style.background='#3a4659'" onmouseout="this.style.background='none'">
+							<span style="font-size:15px;">📊</span> Activity Report
+						</button>
+						<button onclick="fakeAction('Help center opened!')" style="background:none;border:none;color:#cbd5e0;font-size:13px;cursor:pointer;text-align:left;padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:8px;width:100%;" onmouseover="this.style.background='#3a4659'" onmouseout="this.style.background='none'">
+							<span style="font-size:15px;">❓</span> Help & Support
+						</button>
+						<button onclick="fakeSignOut()" style="background:none;border:none;color:#fc8181;font-size:13px;cursor:pointer;text-align:left;padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:8px;width:100%;margin-top:2px;" onmouseover="this.style.background='#3a2020'" onmouseout="this.style.background='none'">
+							<span style="font-size:15px;">🚪</span> Sign Out
+						</button>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<div class="animate-fade" style="flex-grow:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:80px;animation-delay:0.3s;">
+			<img class="logo" src="plus.png" alt="EDUsite" style="width:240px;height:auto;border-radius:35px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.4);margin-bottom:30px;" />
+			<h1 style="text-align:center;margin-bottom:8px;font-weight:700;font-size:2.5rem;color:#ffffff;">EDUsite | Educational Activities</h1>
+			<p style="color:#a0aec0;font-style:italic;font-size:1.1rem;margin-bottom:40px;">Activities for the mind</p>
+			<form id="uv-form" style="width:100%;display:flex;justify-content:center;">
+				<input id="uv-search-engine" value="https://google.com" type="hidden" />
+				<input id="uv-address" type="text" placeholder="Search Lessons or Resource ID..." style="width:550px;max-width:90%;padding:18px 30px;border-radius:40px;border:1px solid #4a5568;background:#2d3748;color:white;outline:none;font-size:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);transition:0.3s;" />
+			</form>
+		</div>
+
+		<footer class="animate-fade" style="padding:20px;text-align:center;font-size:12px;color:#718096;animation-delay:0.5s;">
+			<p>&copy; 2026 EDUsite Systems | Secure Learning Portal</p>
+		</footer>
+
+		<iframe id="uv-frame"></iframe>
+		<script src="register-sw.js"></script>
+		<script src="search.js"></script>
+		<script src="index.js"></script>
+
+		<script>
+			const frame = document.getElementById("uv-frame");
+			const homeBtn = document.getElementById("home-btn");
+			const updateUIVisibility = () => {
+				const isGameActive = window.getComputedStyle(frame).display !== "none" || frame.classList.contains("show");
+				homeBtn.style.setProperty("display", isGameActive ? "flex" : "none", "important");
+			};
+			const observer = new MutationObserver(updateUIVisibility);
+			observer.observe(frame, { attributes: true, attributeFilter: ["style", "class"] });
+			setInterval(updateUIVisibility, 500);
+			homeBtn.addEventListener("click", () => {
+				frame.style.setProperty("display", "none", "important");
+				frame.classList.remove("show");
+				homeBtn.style.setProperty("display", "none", "important");
+				frame.src = "about:blank";
+			});
+		</script>
+
+		<script>
+			(function() {
+				const name = localStorage.getItem('edu_name');
+				const bg = localStorage.getItem('edu_bg');
+				const font = localStorage.getItem('edu_font');
+				const avatar = localStorage.getItem('edu_avatar');
+				if (name) {
+					document.getElementById('welcome-text').textContent = 'Welcome, ' + name;
+					document.getElementById('display-name').textContent = name;
+					document.getElementById('panel-avatar').textContent = name[0].toUpperCase();
+				}
+				if (bg) document.body.style.backgroundColor = bg;
+				if (font) document.body.style.fontSize = font;
+				if (avatar) {
+					document.getElementById('panel-avatar').style.background = avatar;
+					document.querySelector('.user-avatar-container').style.background = avatar;
+				}
+			})();
+
+			function toggleCustomPanel() {
+				const panel = document.getElementById('custom-panel');
+				panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+			}
+			document.addEventListener('click', (e) => {
+				if (!document.getElementById('user-pill').contains(e.target))
+					document.getElementById('custom-panel').style.display = 'none';
+			});
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') {
+					document.getElementById('custom-panel').style.display = 'none';
+					document.getElementById('name-edit-box').style.display = 'none';
+				}
+			});
+			function setActiveNav(el) {
+				document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+				el.classList.add('active');
+			}
+			function toggleNameEdit() {
+				const box = document.getElementById('name-edit-box');
+				box.style.display = box.style.display === 'block' ? 'none' : 'block';
+				if (box.style.display === 'block') document.getElementById('name-input').focus();
+			}
+			document.getElementById('name-input').addEventListener('keydown', (e) => {
+				if (e.key === 'Enter') saveName();
+			});
+			function saveName() {
+				const val = document.getElementById('name-input').value.trim();
+				if (!val) return;
+				document.getElementById('display-name').textContent = val;
+				document.getElementById('welcome-text').textContent = 'Welcome, ' + val;
+				document.getElementById('panel-avatar').textContent = val[0].toUpperCase();
+				document.getElementById('name-edit-box').style.display = 'none';
+				localStorage.setItem('edu_name', val);
+				showToast('Name updated!');
+			}
+			function setAvatar(color) {
+				document.getElementById('panel-avatar').style.background = color;
+				document.querySelector('.user-avatar-container').style.background = color;
+				localStorage.setItem('edu_avatar', color);
+				showToast('Avatar updated!');
+			}
+			let notifOn = true;
+			function toggleNotifs() {
+				notifOn = !notifOn;
+				document.getElementById('notif-toggle').style.background = notifOn ? '#48bb78' : '#4a5568';
+				document.getElementById('notif-knob').style.left = notifOn ? '16px' : '2px';
+				showToast(notifOn ? 'Notifications on' : 'Notifications off');
+			}
+			let privOn = false;
+			function togglePrivacy() {
+				privOn = !privOn;
+				document.getElementById('priv-toggle').style.background = privOn ? '#48bb78' : '#4a5568';
+				document.getElementById('priv-knob').style.left = privOn ? '16px' : '2px';
+				showToast(privOn ? 'Privacy mode on' : 'Privacy mode off');
+			}
+			function applyTheme(color) {
+				document.querySelectorAll('.nav-link').forEach(el => el.style.color = color);
+				document.querySelector('.status-dot').style.background = color;
+				document.querySelector('#uv-address').style.borderColor = color;
+				showToast('Accent color updated!');
+			}
+			function applyBg(color) {
+				document.body.style.backgroundColor = color;
+				localStorage.setItem('edu_bg', color);
+				showToast('Background updated!');
+			}
+			function applyFont(size) {
+				document.body.style.fontSize = size;
+				localStorage.setItem('edu_font', size);
+				showToast('Font size updated!');
+			}
+			function fakeAction(msg) {
+				document.getElementById('custom-panel').style.display = 'none';
+				showToast(msg);
+			}
+			function fakeSignOut() {
+				document.getElementById('custom-panel').style.display = 'none';
+				const overlay = document.createElement('div');
+				Object.assign(overlay.style, {
+					position: 'fixed', inset: '0', background: '#1a202c',
+					display: 'flex', alignItems: 'center', justifyContent: 'center',
+					flexDirection: 'column', gap: '12px', zIndex: '9999998',
+					opacity: '0', transition: 'opacity 0.5s ease'
+				});
+				overlay.innerHTML = '<div style="color:#e2e8f0;font-size:1.2rem;font-weight:600;">Signed out successfully</div><div style="color:#718096;font-size:0.9rem;">See you next time 👋</div>';
+				document.body.appendChild(overlay);
+				setTimeout(() => overlay.style.opacity = '1', 10);
+				setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 500); }, 2000);
+			}
+			function showToast(msg) {
+				const t = document.createElement('div');
+				t.textContent = '✓ ' + msg;
+				Object.assign(t.style, {
+					position: 'fixed', bottom: '30px', right: '30px',
+					background: '#2d3748', color: '#68d391',
+					border: '1px solid #68d391', borderRadius: '10px',
+					padding: '10px 18px', fontSize: '13px', fontWeight: '600',
+					zIndex: '9999999', boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
+					animation: 'fadeInUp 0.3s ease-out forwards'
+				});
+				document.body.appendChild(t);
+				setTimeout(() => t.remove(), 2000);
+			}
+		</script>
+	</body>
+</html>
