@@ -9,10 +9,11 @@ import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 
 const app = express();
-// Load our publicPath first and prioritize it over UV.
+
+// Load our publicPath first
 app.use(express.static("./public"));
-// Load vendor files last.
-// The vendor's uv.config.js won't conflict with our uv.config.js inside the publicPath directory.
+
+// Load vendor files
 app.use("/uv/", express.static(uvPath));
 app.use("/epoxy/", express.static(epoxyPath));
 app.use("/baremux/", express.static(baremuxPath));
@@ -20,7 +21,8 @@ app.use("/baremux/", express.static(baremuxPath));
 // Error for everything else
 app.use((req, res) => {
 	res.status(404);
-	res.sendFile("./public/404.html");
+	// Using join/process.cwd() is safer for absolute paths on Render
+	res.sendFile(join(process.cwd(), "./public/404.html"));
 });
 
 const server = createServer();
@@ -30,6 +32,7 @@ server.on("request", (req, res) => {
 	res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
 	app(req, res);
 });
+
 server.on("upgrade", (req, socket, head) => {
 	if (req.url.endsWith("/wisp/")) {
 		wisp.routeRequest(req, socket, head);
@@ -38,26 +41,16 @@ server.on("upgrade", (req, socket, head) => {
 	socket.end();
 });
 
-let port = parseInt(process.env.PORT || "");
-
-if (isNaN(port)) port = 8080;
+// Port handling for Render
+let port = parseInt(process.env.PORT || "8080");
 
 server.on("listening", () => {
 	const address = server.address();
-
-	// by default we are listening on 0.0.0.0 (every interface)
-	// we just need to list a few
-	console.log("Listening on:");
-	console.log(`\thttp://localhost:${address.port}`);
-	console.log(`\thttp://${hostname()}:${address.port}`);
-	console.log(
-		`\thttp://${
-			address.family === "IPv6" ? `[${address.address}]` : address.address
-		}:${address.port}`
-	);
+	console.log(`🚀 Ultraviolet is live!`);
+	console.log(`Listening on: http://0.0.0.0:${address.port}`);
 });
 
-// https://expressjs.com/en/advanced/healthcheck-graceful-shutdown.html
+// Graceful shutdown
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
@@ -67,11 +60,8 @@ function shutdown() {
 	process.exit(0);
 }
 
-// This tells the server to listen on the correct port AND 
-// allow external connections from Render's network.
+// THE FIX: Listen on port AND 0.0.0.0
 server.listen({
 	port,
-	host: "0.0.0.0", // ADD THIS LINE
-}, () => {
-	console.log(`🚀 Ultraviolet is running on port ${port}`);
+	host: "0.0.0.0",
 });
