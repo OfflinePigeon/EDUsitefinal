@@ -67,6 +67,11 @@ function shutdown() {
 	process.exit(0);
 }
 
+// This tells the server to listen on the correct port AND 
+// allow external connections from Render's network.
 server.listen({
 	port,
+	host: "0.0.0.0", // ADD THIS LINE
+}, () => {
+	console.log(`🚀 Ultraviolet is running on port ${port}`);
 });
